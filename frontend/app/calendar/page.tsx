@@ -1,8 +1,10 @@
-import { Box } from "@chakra-ui/react";
+import { Box } from '@chakra-ui/react'
+import Calendar from '../components/calendar'
 export default function Home() {
   return (
-    <Box>
-      <p>Home</p>
-    </Box>
-  );
+  <Box mt={3}>
+    <Calendar/>
+
+  </Box>
+  )
 }

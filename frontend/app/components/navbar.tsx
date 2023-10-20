@@ -17,19 +17,21 @@ import {
   useColorMode,
 } from '@chakra-ui/react'
 import { HamburgerIcon, CloseIcon, MoonIcon, SunIcon } from '@chakra-ui/icons'
+import Link from 'next/link'
 
 interface Props {
   children: React.ReactNode
 }
 
-const Links = ['Calendar', 'Kanban boards']
+const Links = ['Calendar', 'Kanban']
 
 const NavLink = (props: Props) => {
   const { children } = props
 
   return (
+  <Link href={'/' + children?.toString().toLowerCase()}> 
     <Box
-      as="a"
+      as="span"
       px={2}
       py={1}
       rounded={'md'}
@@ -37,9 +39,10 @@ const NavLink = (props: Props) => {
         textDecoration: 'none',
         bg: useColorModeValue('gray.200', 'gray.700'),
       }}
-      href={'/' + children?.toString().toLowerCase()} >
+      >
       {children}
     </Box>
+    </Link>
   )
 }
 
