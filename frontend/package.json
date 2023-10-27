@@ -9,16 +9,23 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@auth0/nextjs-auth0": "^3.2.0",
     "@chakra-ui/icons": "^2.1.1",
     "@chakra-ui/next-js": "^2.1.5",
     "@chakra-ui/react": "^2.8.1",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@fontsource/source-sans-pro": "^5.0.8",
+    "axios": "^1.5.1",
     "framer-motion": "^10.16.4",
     "next": "13.5.4",
+    "node-fetch": "^3.3.2",
     "react": "^18",
-    "react-dom": "^18"
+    "react-datepicker": "^4.21.0",
+    "react-datetime": "^3.2.0",
+    "react-dom": "^18",
+    "react-query": "^3.39.3",
+    "tailwindcss": "^3.3.3"
   },
   "devDependencies": {
     "@types/node": "^20",
@@ -28,7 +35,7 @@
     "eslint": "^8",
     "eslint-config-next": "13.5.4",
     "postcss": "^8",
-    "tailwindcss": "^3",
-    "typescript": "^5"
+    "typescript": "^5",
+    "webpack-node-externals": "^3.0.0"
   }
 }

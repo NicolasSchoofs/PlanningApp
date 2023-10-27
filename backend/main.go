@@ -1,6 +1,7 @@
 package main
 
 import (
+    "time"
     "net/http"
     "github.com/gin-gonic/gin"
     "strconv"
@@ -9,13 +10,15 @@ import (
     "go.mongodb.org/mongo-driver/bson"
     "go.mongodb.org/mongo-driver/mongo"
     "go.mongodb.org/mongo-driver/mongo/options"
+    "github.com/gin-contrib/cors"
 )
 type Event struct {
-    Type          string  `bson:"type"`
-    DateTime      string  `bson:"datetime"`
-    Title         string  `bson:"title"`
-    Description   string  `bson:"description"`
-    UserID        int     `bson:"userid"` 
+    Type          string    `bson:"type"`
+    DateTimeStart time.Time `bson:"datetime_start"`
+    DateTimeEnd   time.Time `bson:"datetime_end"`
+    Title         string    `bson:"title"`
+    Description   string    `bson:"description"`
+    UserID        int       `bson:"userid"`
 
 }
 type User struct{
@@ -47,6 +50,11 @@ func main() {
 
 
     router := gin.Default()
+
+    config := cors.DefaultConfig()
+    config.AllowOrigins = []string{"http://localhost:3000"}
+    router.Use(cors.New(config))
+
     router.GET("/events", getEvents)
     router.GET("/events/:id", getEventsByUserID)
     router.POST("/events", addEvent)
