@@ -52,6 +52,7 @@ function getCurrentWeekDates() {
 const weekdays = getCurrentWeekDates();
 
 export default function Calendar() {
+  const error = "";
   const bgWeekDay = useColorModeValue("gray.200", "gray.900");
   const itemCount = 4;
   const [events, setEvents] = useState<Event[]>([]);
@@ -63,12 +64,17 @@ export default function Calendar() {
       console.log(data);
     } catch (error) {
       console.error("Error setting events:", error);
+      error = error;
     }
   }
 
   fetchAndSetEvents();
 }, []);
 
+  if (error) {
+    return <div>Error: {error}</div>;
+
+  }
    if (events.length === 0) {
     // Data is not loaded yet
     return <div>Loading...</div>; // You can replace this with a loading indicator
