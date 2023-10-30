@@ -11,8 +11,10 @@ import (
     "go.mongodb.org/mongo-driver/mongo"
     "go.mongodb.org/mongo-driver/mongo/options"
     "github.com/gin-contrib/cors"
+    "go.mongodb.org/mongo-driver/bson/primitive"
 )
 type Event struct {
+    Id            int       `bson:"id"`
     Type          string    `bson:"type"`
     DateTimeStart time.Time `bson:"datetime_start"`
     DateTimeEnd   time.Time `bson:"datetime_end"`
@@ -57,6 +59,7 @@ func main() {
 
     router.GET("/events", getEvents)
     router.GET("/events/:id", getEventsByUserID)
+    router.DELETE("/events/:id", deleteEventById)
     router.POST("/events", addEvent)
 
     router.Run("localhost:8080")
@@ -117,15 +120,34 @@ func addEvent(c *gin.Context) {
 
     collection := client.Database("PlanningApp").Collection("Events")
 
-
-
     _,err := collection.InsertOne(ctx, newEvent)
     if err != nil {
         panic(err)
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to insert event"})
         return 
     }
     c.JSON(http.StatusCreated, gin.H{"created": newEvent})
 
+}
+func deleteEventById(c *gin.Context) {
+  ctx := context.TODO()
+  collection := client.Database("PlanningApp").Collection("Events")
+
+  IDString := c.Param("id")
+
+
+  objID, err := primitive.ObjectIDFromHex(IDString)
+  if err != nil {
+    c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID format"})
+    return
+  }
+  filter := bson.M{"_id": objID}
+
+      
+  _, err = collection.DeleteOne(ctx, filter)      
+  if err != nil {
+    c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete the event"})
+    return
+  }
+  c.JSON(http.StatusOK, gin.H{"message": "Event deleted successfully"})
 }
 
