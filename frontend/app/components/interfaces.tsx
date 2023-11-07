@@ -8,5 +8,15 @@ export interface Event {
     UserID: number;
 }
 
-  
+export interface KanbanBoard {
+    Id: number;
+    Title: string;
+    Description: string;
+    Cards: KanbanCard[];
+    UserID: number;
+}
 
+export interface KanbanCard {
+    Id: number;
+    Title: string;
+}

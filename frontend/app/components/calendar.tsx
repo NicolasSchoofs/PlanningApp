@@ -49,17 +49,18 @@ async function deleteEvent(id: number) {
     }
 
     console.log(response);
+    window.location.reload();
   } catch (error) {
     console.error("Error fetching data:", error);
   }
 }
-function getCurrentWeekDates() {
+function getCurrentWeekDates(offset = 0) {
   const today = new Date();
   const startOfWeek = new Date(today);
 
   // Calculate the number of days to subtract to get to Monday
   const daysToSubtract = (today.getDay() + 6) % 7;
-  startOfWeek.setDate(today.getDate() - daysToSubtract);
+  startOfWeek.setDate(today.getDate() - daysToSubtract + offset * 7);
 
   const weekdays = [];
   for (let i = 0; i < 7; i++) {
@@ -71,7 +72,7 @@ function getCurrentWeekDates() {
   return weekdays;
 }
 
-const weekdays = getCurrentWeekDates();
+let weekdays = getCurrentWeekDates();
 
 export default function Calendar() {
   const error = "";
@@ -80,6 +81,7 @@ export default function Calendar() {
   const [events, setEvents] = useState<Event[]>([]);
 
   const [openModalIndex, setOpenModalIndex] = useState(null);
+  const [currentWeekIndex, setCurrentWeekIndex] = useState(0);
 
   const openModal = (index: any) => {
     setOpenModalIndex(index);
@@ -89,27 +91,15 @@ export default function Calendar() {
     setOpenModalIndex(null);
   };
 
-  const handleDeleteClick = (id: number, e) => {
+  const handleDeleteClick = (id: number) => {
     deleteEvent(id)
-      .then(() => {
-
-        })
+      .then(() => {})
       .catch((error) => {
         console.error("Error deleting event:", error);
       });
   };
 
   useEffect(() => {
-<<<<<<< HEAD
-  async function fetchAndSetEvents() {
-    try {
-      const data = await fetchData();
-      setEvents(data);
-      console.log(data);
-    } catch (error) {
-      console.error("Error setting events:", error);
-      error = error;
-=======
     async function fetchAndSetEvents() {
       try {
         const data = await fetchData();
@@ -118,21 +108,27 @@ export default function Calendar() {
       } catch (error) {
         console.error("Error setting events:", error);
       }
->>>>>>> 5b6d01ba5e9799e237aefe8f327a0e681af949d3
     }
 
     fetchAndSetEvents();
-  }, []);
+  }, [currentWeekIndex]);
 
-<<<<<<< HEAD
+  const goToNextWeek = () => {
+    setCurrentWeekIndex(currentWeekIndex + 1);
+  };
+
+  const goToPreviousWeek = () => {
+    setCurrentWeekIndex(currentWeekIndex - 1);
+  };
+  const weekdays = getCurrentWeekDates(currentWeekIndex);
+
   if (error) {
     return <div>Error: {error}</div>;
-
   }
-   if (events.length === 0) {
-=======
+  if (!events)
+    return <div> No events found. Please add some events to the calendar</div>;
+
   if (events.length === 0) {
->>>>>>> 5b6d01ba5e9799e237aefe8f327a0e681af949d3
     // Data is not loaded yet
     return <div>Loading...</div>; // You can replace this with a loading indicator
   }
@@ -140,6 +136,10 @@ export default function Calendar() {
   if (events.length !== 0) {
     return (
       <>
+        <Flex ml={5} mr={5} justifyContent={"space-between"}>
+            <Button colorScheme="blue" onClick={goToPreviousWeek}>Previous Week</Button>
+            <Button colorScheme="blue" onClick={goToNextWeek}>Next Week</Button>
+        </Flex>
         <Grid templateColumns="repeat(15, 1fr)" gap={5} mt={5} mr={10}>
           <GridItem colSpan={1}></GridItem>
           {weekdays.map((date, index) => (
@@ -239,7 +239,8 @@ export default function Calendar() {
                                       mr={3}
                                       onClick={(e) => {
                                         e.preventDefault();
-                                        handleDeleteClick(z, e);
+                                        closeModal();
+                                        handleDeleteClick(event.Id);
                                       }}
                                     >
                                       Delete{" "}

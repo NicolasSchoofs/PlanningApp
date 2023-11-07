@@ -11,7 +11,6 @@ import (
     "go.mongodb.org/mongo-driver/mongo"
     "go.mongodb.org/mongo-driver/mongo/options"
     "github.com/gin-contrib/cors"
-    "go.mongodb.org/mongo-driver/bson/primitive"
 )
 type Event struct {
     Id            int       `bson:"id"`
@@ -20,7 +19,7 @@ type Event struct {
     DateTimeEnd   time.Time `bson:"datetime_end"`
     Title         string    `bson:"title"`
     Description   string    `bson:"description"`
-    UserID        int       `bson:"userid"`
+    UserID        string    `bson:"userid"`
 
 }
 type User struct{
@@ -117,17 +116,46 @@ func addEvent(c *gin.Context) {
     }
     ctx := context.TODO() 
 
-
     collection := client.Database("PlanningApp").Collection("Events")
 
-    _,err := collection.InsertOne(ctx, newEvent)
+    // Find the maximum ID in the collection
+    var maxIDResult struct {
+        MaxID int `bson:"max_id"`
+    }
+    pipeline := []bson.M{
+        {
+            "$group": bson.M{
+                "_id": nil,
+                "max_id": bson.M{"$max": "$id"},
+            },
+        },
+    }
+    cursor, err := collection.Aggregate(ctx, pipeline)
     if err != nil {
         panic(err)
-        return 
+        return
     }
-    c.JSON(http.StatusCreated, gin.H{"created": newEvent})
+    if cursor.Next(ctx) {
+        if err := cursor.Decode(&maxIDResult); err != nil {
+            panic(err)
+            return
+        }
+    }
+    cursor.Close(ctx)
 
+    // Increment the maximum ID to generate the next available ID
+    newEvent.Id = maxIDResult.MaxID + 1
+
+    _, err = collection.InsertOne(ctx, newEvent)
+    if err != nil {
+        panic(err)
+        return
+    }
+
+    c.JSON(http.StatusCreated, gin.H{"created": newEvent})
 }
+
+
 func deleteEventById(c *gin.Context) {
   ctx := context.TODO()
   collection := client.Database("PlanningApp").Collection("Events")
@@ -135,12 +163,12 @@ func deleteEventById(c *gin.Context) {
   IDString := c.Param("id")
 
 
-  objID, err := primitive.ObjectIDFromHex(IDString)
+  ID, err := strconv.Atoi(IDString)
   if err != nil {
     c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID format"})
     return
   }
-  filter := bson.M{"_id": objID}
+  filter := bson.M{"id": ID}
 
       
   _, err = collection.DeleteOne(ctx, filter)      

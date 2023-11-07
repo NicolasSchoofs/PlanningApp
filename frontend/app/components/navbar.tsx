@@ -18,6 +18,8 @@ import {
 } from "@chakra-ui/react";
 import { HamburgerIcon, CloseIcon, MoonIcon, SunIcon } from "@chakra-ui/icons";
 import Link from "next/link";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCalendar } from "@fortawesome/free-solid-svg-icons";
 
 import { useUser } from "@auth0/nextjs-auth0/client";
 interface Props {
@@ -69,6 +71,9 @@ export default function Navbar() {
               spacing={4}
               display={{ base: "none", md: "flex" }}
             >
+              <NavLink key="Home" href="/">
+                <FontAwesomeIcon icon={faCalendar} /> {/* FontAwesome icon */}
+              </NavLink>
               {Links.map((link) => (
                 <NavLink key={link}>{link}</NavLink>
               ))}
@@ -86,7 +91,10 @@ export default function Navbar() {
                 cursor={"pointer"}
                 minW={0}
               >
-                <Avatar size={"sm"} src={user && user.picture ? user.picture : ''} />
+                <Avatar
+                  size={"sm"}
+                  src={user && user.picture ? user.picture : ""}
+                />
               </MenuButton>
               <MenuList>
                 {user ? (

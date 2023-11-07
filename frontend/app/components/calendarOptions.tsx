@@ -19,8 +19,11 @@ import DateTime from "react-datetime";
 import "react-datetime/css/react-datetime.css";
 import moment from "moment";
 
+import { useUser } from '@auth0/nextjs-auth0/client';
 export default function CalendarOptions() {
+  const { user, error, isLoading } = useUser();
   const { isOpen, onOpen, onClose } = useDisclosure();
+
   const initialRef = React.useRef(null);
   const finalRef = React.useRef(null);
 
@@ -30,8 +33,20 @@ export default function CalendarOptions() {
     DateTimeEnd: moment().format("YYYY-MM-DD HH:00"),
     Title: "",
     Description: "",
-    UserID: 1,
+    UserID: user?.sub,
   });
+  console.log(user?.sub);
+
+  if (isLoading) {
+  // Handle loading state if needed
+  return <div>Loading...</div>;
+}
+
+if (error || !user) {
+  return <div> Please login to create new events </div>;
+}
+
+
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
@@ -56,6 +71,8 @@ export default function CalendarOptions() {
       if (response.ok) {
         // Event created successfully, handle the response if needed
         console.log("Event created successfully");
+        onClose();
+        window.location.reload();
       } else {
         // Handle errors here
         console.error("Failed to create event");
@@ -69,10 +86,14 @@ export default function CalendarOptions() {
     const { name, value } = e.target;
     setEventData({ ...eventData, [name]: value });
   };
-  const handleDateTimeChange = (value: any, fieldName: any) => {
+  const handleDateTimeChange = (
+    e: ChangeEvent<HTMLInputElement>,
+    fieldName: string,
+  ) => {
+    const { value } = e.target;
     setEventData({
       ...eventData,
-      [fieldName]: moment(value).format("YYYY-MM-DDTHH:mm"),
+      [fieldName]: moment(value, "YYYY-MM-DDTHH:mm").format("YYYY-MM-DD HH:mm"),
     });
   };
 
@@ -123,8 +144,10 @@ export default function CalendarOptions() {
 
             <FormControl mt={4} color={"gray.600"}>
               <FormLabel color={"white"}>Start Time </FormLabel>
-              <DateTime
-                timeFormat="HH"
+              <Input
+                name="DateTimeStart"
+                placeholder="Start Time"
+                type="datetime-local"
                 onChange={(value) =>
                   handleDateTimeChange(value, "DateTimeStart")
                 }
@@ -133,11 +156,11 @@ export default function CalendarOptions() {
 
             <FormControl mt={4} color={"gray.600"}>
               <FormLabel color={"white"}>End Time </FormLabel>
-              <DateTime
-                timeFormat="HH"
-                onChange={(value) =>
-                  handleDateTimeChange(value, "DateTimeEnd")
-                }
+              <Input
+                name="DateTimeEnd"
+                placeholder="End Time"
+                type="datetime-local"
+                onChange={(value) => handleDateTimeChange(value, "DateTimeEnd")}
               />
             </FormControl>
           </ModalBody>
